@@ -205,7 +205,7 @@ class CircularImageView @JvmOverloads constructor(
     }
     //endregion
 
-    //region Set Attr Method
+    //region Set Attr Methoda
     override fun setColorFilter(colorFilter: ColorFilter?) {
         civColorFilter = colorFilter
     }
@@ -218,7 +218,8 @@ class CircularImageView @JvmOverloads constructor(
                 listOf(
                         CENTER_CROP,
                         CENTER_INSIDE,
-                        FIT_CENTER
+                        FIT_CENTER,
+                        MATRIX //used for adjust
                 ).contains(scaleType)
         ) {
             "ScaleType $scaleType not supported. Just ScaleType.CENTER_CROP, ScaleType.CENTER_INSIDE & ScaleType.FIT_CENTER are available for this library."
@@ -378,6 +379,7 @@ class CircularImageView @JvmOverloads constructor(
                         CENTER_CROP -> centerCrop(it, heightCircle)
                         CENTER_INSIDE -> centerInside(it, heightCircle)
                         FIT_CENTER -> fitCenter(it, heightCircle)
+                        MATRIX -> fitCenterAdjust(it, heightCircle)
                         else -> Matrix()
                     }
             )
@@ -424,6 +426,15 @@ class CircularImageView @JvmOverloads constructor(
             }
 
     private fun fitCenter(bitmap: Bitmap, viewSize: Int): Matrix =
+            Matrix().apply {
+                setRectToRect(
+                        RectF().apply { set(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat()) },
+                        RectF().apply { set(0f, 0f, viewSize.toFloat(), viewSize.toFloat()) },
+                        Matrix.ScaleToFit.CENTER
+                )
+            }
+
+    private fun fitCenterAdjust(bitmap: Bitmap, viewSize: Int): Matrix =
             Matrix().apply {
                 setRectToRect(
                         RectF().apply {
