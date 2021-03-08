@@ -19,9 +19,9 @@ import kotlin.math.roundToInt
  * Licensed under the Apache License Version 2.0
  */
 class CircularImageView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0
 ) : AppCompatImageView(context, attrs, defStyleAttr) {
 
     companion object {
@@ -38,6 +38,11 @@ class CircularImageView @JvmOverloads constructor(
     private var heightCircle: Int = 0
 
     //region Attributes
+    var imageSizeAdjust: Float = 0f
+        set(value) {
+            field = value
+            update()
+        }
     var circleColor: Int = Color.WHITE
         set(value) {
             field = value
@@ -140,37 +145,43 @@ class CircularImageView @JvmOverloads constructor(
     private fun init(context: Context, attrs: AttributeSet?, defStyleAttr: Int) {
         // Load the styled attributes and set their properties
         val attributes =
-            context.obtainStyledAttributes(attrs, R.styleable.CircularImageView, defStyleAttr, 0)
+                context.obtainStyledAttributes(attrs, R.styleable.CircularImageView, defStyleAttr, 0)
+
+        // Init Increase Image Size
+        imageSizeAdjust = attributes.getDimension(
+                R.styleable.CircularImageView_civ_image_size_adjust,
+                0f
+        )
 
         // Init Background Color
         circleColor =
-            attributes.getColor(R.styleable.CircularImageView_civ_circle_color, Color.WHITE)
+                attributes.getColor(R.styleable.CircularImageView_civ_circle_color, Color.WHITE)
         attributes.getColor(R.styleable.CircularImageView_civ_circle_color_start, 0)
-            .also { if (it != 0) circleColorStart = it }
+                .also { if (it != 0) circleColorStart = it }
         attributes.getColor(R.styleable.CircularImageView_civ_circle_color_end, 0)
-            .also { if (it != 0) circleColorEnd = it }
+                .also { if (it != 0) circleColorEnd = it }
         circleColorDirection = attributes.getInteger(
-            R.styleable.CircularImageView_civ_circle_color_direction,
-            circleColorDirection.value
+                R.styleable.CircularImageView_civ_circle_color_direction,
+                circleColorDirection.value
         ).toGradientDirection()
 
         // Init Border
         if (attributes.getBoolean(R.styleable.CircularImageView_civ_border, true)) {
             val defaultBorderWidth =
-                DEFAULT_BORDER_WIDTH * resources.displayMetrics.density
+                    DEFAULT_BORDER_WIDTH * resources.displayMetrics.density
             borderWidth = attributes.getDimension(
-                R.styleable.CircularImageView_civ_border_width,
-                defaultBorderWidth
+                    R.styleable.CircularImageView_civ_border_width,
+                    defaultBorderWidth
             )
             borderColor =
-                attributes.getColor(R.styleable.CircularImageView_civ_border_color, Color.WHITE)
+                    attributes.getColor(R.styleable.CircularImageView_civ_border_color, Color.WHITE)
             attributes.getColor(R.styleable.CircularImageView_civ_border_color_start, 0)
-                .also { if (it != 0) borderColorStart = it }
+                    .also { if (it != 0) borderColorStart = it }
             attributes.getColor(R.styleable.CircularImageView_civ_border_color_end, 0)
-                .also { if (it != 0) borderColorEnd = it }
+                    .also { if (it != 0) borderColorEnd = it }
             borderColorDirection = attributes.getInteger(
-                R.styleable.CircularImageView_civ_border_color_direction,
-                borderColorDirection.value
+                    R.styleable.CircularImageView_civ_border_color_direction,
+                    borderColorDirection.value
             ).toGradientDirection()
         }
 
@@ -178,16 +189,16 @@ class CircularImageView @JvmOverloads constructor(
         shadowEnable = attributes.getBoolean(R.styleable.CircularImageView_civ_shadow, shadowEnable)
         if (shadowEnable) {
             shadowGravity = attributes.getInteger(
-                R.styleable.CircularImageView_civ_shadow_gravity,
-                shadowGravity.value
+                    R.styleable.CircularImageView_civ_shadow_gravity,
+                    shadowGravity.value
             ).toShadowGravity()
             val defaultShadowRadius = DEFAULT_SHADOW_RADIUS * resources.displayMetrics.density
             shadowRadius = attributes.getDimension(
-                R.styleable.CircularImageView_civ_shadow_radius,
-                defaultShadowRadius
+                    R.styleable.CircularImageView_civ_shadow_radius,
+                    defaultShadowRadius
             )
             shadowColor =
-                attributes.getColor(R.styleable.CircularImageView_civ_shadow_color, shadowColor)
+                    attributes.getColor(R.styleable.CircularImageView_civ_shadow_color, shadowColor)
         }
 
         attributes.recycle()
@@ -200,15 +211,15 @@ class CircularImageView @JvmOverloads constructor(
     }
 
     override fun getScaleType(): ScaleType =
-        super.getScaleType() ?: CENTER_CROP
+            super.getScaleType() ?: CENTER_CROP
 
     override fun setScaleType(scaleType: ScaleType) {
         require(
-            listOf(
-                CENTER_CROP,
-                CENTER_INSIDE,
-                FIT_CENTER
-            ).contains(scaleType)
+                listOf(
+                        CENTER_CROP,
+                        CENTER_INSIDE,
+                        FIT_CENTER
+                ).contains(scaleType)
         ) {
             "ScaleType $scaleType not supported. Just ScaleType.CENTER_CROP, ScaleType.CENTER_INSIDE & ScaleType.FIT_CENTER are available for this library."
         }
@@ -231,32 +242,32 @@ class CircularImageView @JvmOverloads constructor(
         if (shadowEnable) {
             drawShadow()
             canvas.drawCircle(
-                circleCenterWithBorder,
-                circleCenterWithBorder,
-                circleCenterWithBorder - margeWithShadowRadius,
-                paintShadow
+                    circleCenterWithBorder,
+                    circleCenterWithBorder,
+                    circleCenterWithBorder - margeWithShadowRadius,
+                    paintShadow
             )
         }
         // Draw Border
         canvas.drawCircle(
-            circleCenterWithBorder,
-            circleCenterWithBorder,
-            circleCenterWithBorder - margeWithShadowRadius,
-            paintBorder
+                circleCenterWithBorder,
+                circleCenterWithBorder,
+                circleCenterWithBorder - margeWithShadowRadius,
+                paintBorder
         )
         // Draw Circle background
         canvas.drawCircle(
-            circleCenterWithBorder,
-            circleCenterWithBorder,
-            circleCenter - margeWithShadowRadius,
-            paintBackground
+                circleCenterWithBorder,
+                circleCenterWithBorder,
+                circleCenter - margeWithShadowRadius,
+                paintBackground
         )
         // Draw CircularImageView
         canvas.drawCircle(
-            circleCenterWithBorder,
-            circleCenterWithBorder,
-            circleCenter - margeWithShadowRadius,
-            paint
+                circleCenterWithBorder,
+                circleCenterWithBorder,
+                circleCenter - margeWithShadowRadius,
+                paint
         )
     }
 
@@ -279,23 +290,23 @@ class CircularImageView @JvmOverloads constructor(
 
     private fun manageCircleColor() {
         paintBackground.shader = createLinearGradient(
-            circleColorStart ?: circleColor,
-            circleColorEnd ?: circleColor, circleColorDirection
+                circleColorStart ?: circleColor,
+                circleColorEnd ?: circleColor, circleColorDirection
         )
     }
 
     private fun manageBorderColor() {
         val borderColor = if (borderWidth == 0f) circleColor else this.borderColor
         paintBorder.shader = createLinearGradient(
-            borderColorStart ?: borderColor,
-            borderColorEnd ?: borderColor, borderColorDirection
+                borderColorStart ?: borderColor,
+                borderColorEnd ?: borderColor, borderColorDirection
         )
     }
 
     private fun createLinearGradient(
-        startColor: Int,
-        endColor: Int,
-        gradientDirection: GradientDirection
+            startColor: Int,
+            endColor: Int,
+            gradientDirection: GradientDirection
     ): LinearGradient {
         var x0 = 0f
         var y0 = 0f
@@ -363,12 +374,12 @@ class CircularImageView @JvmOverloads constructor(
 
             // Apply matrix in Shader with scaleType
             shader.setLocalMatrix(
-                when (scaleType) {
-                    CENTER_CROP -> centerCrop(it, heightCircle)
-                    CENTER_INSIDE -> centerInside(it, heightCircle)
-                    FIT_CENTER -> fitCenter(it, heightCircle)
-                    else -> Matrix()
-                }
+                    when (scaleType) {
+                        CENTER_CROP -> centerCrop(it, heightCircle)
+                        CENTER_INSIDE -> centerInside(it, heightCircle)
+                        FIT_CENTER -> fitCenter(it, heightCircle)
+                        else -> Matrix()
+                    }
             )
 
             // Set Shader in Paint
@@ -380,66 +391,73 @@ class CircularImageView @JvmOverloads constructor(
     }
 
     private fun centerCrop(bitmap: Bitmap, viewSize: Int): Matrix =
-        Matrix().apply {
-            val scale: Float
-            val dx: Float
-            val dy: Float
-            if (bitmap.width * viewSize > bitmap.height * viewSize) {
-                scale = viewSize / bitmap.height.toFloat()
-                dx = (viewSize - bitmap.width * scale) * .5f
-                dy = 0f
-            } else {
-                scale = viewSize / bitmap.width.toFloat()
-                dx = 0f
-                dy = (viewSize - bitmap.height * scale) * .5f
+            Matrix().apply {
+                val scale: Float
+                val dx: Float
+                val dy: Float
+                if (bitmap.width * viewSize > bitmap.height * viewSize) {
+                    scale = viewSize / bitmap.height.toFloat()
+                    dx = (viewSize - bitmap.width * scale) * .5f
+                    dy = 0f
+                } else {
+                    scale = viewSize / bitmap.width.toFloat()
+                    dx = 0f
+                    dy = (viewSize - bitmap.height * scale) * .5f
+                }
+                setScale(scale, scale)
+                postTranslate(dx, dy)
             }
-            setScale(scale, scale)
-            postTranslate(dx, dy)
-        }
 
     private fun centerInside(bitmap: Bitmap, viewSize: Int): Matrix =
-        Matrix().apply {
-            val scale = if (bitmap.width <= viewSize && bitmap.height <= viewSize) {
-                1.0f
-            } else {
-                (viewSize.toFloat() / bitmap.width.toFloat()).coerceAtMost(viewSize.toFloat() / bitmap.height.toFloat())
+            Matrix().apply {
+                val scale = if (bitmap.width <= viewSize && bitmap.height <= viewSize) {
+                    1.0f
+                } else {
+                    (viewSize.toFloat() / bitmap.width.toFloat()).coerceAtMost(viewSize.toFloat() / bitmap.height.toFloat())
+                }
+
+                val dx: Float = ((viewSize - bitmap.width * scale) * .5f).roundToInt().toFloat()
+                val dy: Float = ((viewSize - bitmap.height * scale) * .5f).roundToInt().toFloat()
+
+                setScale(scale, scale)
+                postTranslate(dx, dy)
             }
-
-            val dx: Float = ((viewSize - bitmap.width * scale) * .5f).roundToInt().toFloat()
-            val dy: Float = ((viewSize - bitmap.height * scale) * .5f).roundToInt().toFloat()
-
-            setScale(scale, scale)
-            postTranslate(dx, dy)
-        }
 
     private fun fitCenter(bitmap: Bitmap, viewSize: Int): Matrix =
-        Matrix().apply {
-            setRectToRect(
-                RectF().apply { set(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat()) },
-                RectF().apply { set(0f, 0f, viewSize.toFloat(), viewSize.toFloat()) },
-                Matrix.ScaleToFit.CENTER
-            )
-        }
+            Matrix().apply {
+                setRectToRect(
+                        RectF().apply {
+                            set(
+                                    +imageSizeAdjust,
+                                    +imageSizeAdjust,
+                                    bitmap.width.toFloat() - imageSizeAdjust,
+                                    bitmap.height.toFloat() - imageSizeAdjust
+                            )
+                        },
+                        RectF().apply { set(0f, 0f, viewSize.toFloat(), viewSize.toFloat()) },
+                        Matrix.ScaleToFit.CENTER
+                )
+            }
 
     private fun drawableToBitmap(drawable: Drawable?): Bitmap? =
-        drawable?.let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && drawable is VectorDrawable) {
-                drawable.vectorDrawableToBitmap()
-            } else {
-                when (drawable) {
-                    is BitmapDrawable -> drawable.bitmapDrawableToBitmap()
-                    else -> drawable.toBitmap()
+            drawable?.let {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && drawable is VectorDrawable) {
+                    drawable.vectorDrawableToBitmap()
+                } else {
+                    when (drawable) {
+                        is BitmapDrawable -> drawable.bitmapDrawableToBitmap()
+                        else -> drawable.toBitmap()
+                    }
                 }
             }
-        }
 
     private fun VectorDrawable.vectorDrawableToBitmap(): Bitmap {
         // Generate max bitmap size from view when is vector drawable
         // no when scale type is CENTER_INSIDE
         val bitmap = Bitmap.createBitmap(
-            if (scaleType == CENTER_INSIDE) this.intrinsicWidth else width,
-            if (scaleType == CENTER_INSIDE) this.intrinsicHeight else height,
-            Bitmap.Config.ARGB_8888
+                if (scaleType == CENTER_INSIDE) this.intrinsicWidth else width,
+                if (scaleType == CENTER_INSIDE) this.intrinsicHeight else height,
+                Bitmap.Config.ARGB_8888
         )
         val canvas = Canvas(bitmap)
         this.setBounds(0, 0, canvas.width, canvas.height)
@@ -448,31 +466,31 @@ class CircularImageView @JvmOverloads constructor(
     }
 
     private fun BitmapDrawable.bitmapDrawableToBitmap(): Bitmap =
-        bitmap.let {
-            Bitmap.createScaledBitmap(
-                it,
-                this.intrinsicWidth,
-                this.intrinsicHeight,
-                false
-            )
-        }
+            bitmap.let {
+                Bitmap.createScaledBitmap(
+                        it,
+                        this.intrinsicWidth,
+                        this.intrinsicHeight,
+                        false
+                )
+            }
 
     private fun Drawable.toBitmap(): Bitmap? =
-        try {
-            // Create Bitmap object out of the drawable
-            val bitmap = Bitmap.createBitmap(
-                this.intrinsicWidth,
-                this.intrinsicHeight,
-                Bitmap.Config.ARGB_8888
-            )
-            val canvas = Canvas(bitmap)
-            this.setBounds(0, 0, canvas.width, canvas.height)
-            this.draw(canvas)
-            bitmap
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+            try {
+                // Create Bitmap object out of the drawable
+                val bitmap = Bitmap.createBitmap(
+                        this.intrinsicWidth,
+                        this.intrinsicHeight,
+                        Bitmap.Config.ARGB_8888
+                )
+                val canvas = Canvas(bitmap)
+                this.setBounds(0, 0, canvas.width, canvas.height)
+                this.draw(canvas)
+                bitmap
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
     //endregion
 
     //region Measure Method
@@ -495,23 +513,23 @@ class CircularImageView @JvmOverloads constructor(
     //endregion
 
     private fun Int.toShadowGravity(): ShadowGravity =
-        when (this) {
-            1 -> ShadowGravity.CENTER
-            2 -> ShadowGravity.TOP
-            3 -> ShadowGravity.BOTTOM
-            4 -> ShadowGravity.START
-            5 -> ShadowGravity.END
-            else -> throw IllegalArgumentException("This value is not supported for ShadowGravity: $this")
-        }
+            when (this) {
+                1 -> ShadowGravity.CENTER
+                2 -> ShadowGravity.TOP
+                3 -> ShadowGravity.BOTTOM
+                4 -> ShadowGravity.START
+                5 -> ShadowGravity.END
+                else -> throw IllegalArgumentException("This value is not supported for ShadowGravity: $this")
+            }
 
     private fun Int.toGradientDirection(): GradientDirection =
-        when (this) {
-            1 -> GradientDirection.LEFT_TO_RIGHT
-            2 -> GradientDirection.RIGHT_TO_LEFT
-            3 -> GradientDirection.TOP_TO_BOTTOM
-            4 -> GradientDirection.BOTTOM_TO_TOP
-            else -> throw IllegalArgumentException("This value is not supported for GradientDirection: $this")
-        }
+            when (this) {
+                1 -> GradientDirection.LEFT_TO_RIGHT
+                2 -> GradientDirection.RIGHT_TO_LEFT
+                3 -> GradientDirection.TOP_TO_BOTTOM
+                4 -> GradientDirection.BOTTOM_TO_TOP
+                else -> throw IllegalArgumentException("This value is not supported for GradientDirection: $this")
+            }
 
     /**
      * ShadowGravity enum class to set the gravity of the CircleView shadow
