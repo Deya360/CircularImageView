@@ -3,6 +3,7 @@ package com.mikhaellopez.circularimageview
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
@@ -457,6 +458,7 @@ class CircularImageView @JvmOverloads constructor(
                 } else {
                     when (drawable) {
                         is BitmapDrawable -> drawable.bitmapDrawableToBitmap()
+                        is ColorDrawable -> drawable.colorDrawableToBitmap()
                         else -> drawable.toBitmap()
                     }
                 }
@@ -492,6 +494,23 @@ class CircularImageView @JvmOverloads constructor(
                 val bitmap = Bitmap.createBitmap(
                         this.intrinsicWidth,
                         this.intrinsicHeight,
+                        Bitmap.Config.ARGB_8888
+                )
+                val canvas = Canvas(bitmap)
+                this.setBounds(0, 0, canvas.width, canvas.height)
+                this.draw(canvas)
+                bitmap
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+
+    private fun ColorDrawable.colorDrawableToBitmap(): Bitmap? =
+            try {
+                // Create Bitmap object out of the drawable
+                val bitmap = Bitmap.createBitmap(
+                        2,
+                        2,
                         Bitmap.Config.ARGB_8888
                 )
                 val canvas = Canvas(bitmap)
